@@ -9,7 +9,7 @@ import torchvision.transforms as transforms
 from net import Net
 
 
-def imshow(img):
+def show(img):
     img = img / 2 + 0.5
     npimg = img.numpy()
     plt.imshow(np.transpose(npimg, (1, 2, 0)))
@@ -19,18 +19,18 @@ def imshow(img):
 def run():
     transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
-    trainSet = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform)
-    trainLoader = torch.utils.data.DataLoader(trainSet, batch_size=4, shuffle=True, num_workers=2)
+    train_set = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform)
+    train_loader = torch.utils.data.DataLoader(train_set, batch_size=4, shuffle=True, num_workers=2)
 
-    testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform)
-    testloader = torch.utils.data.DataLoader(testset, batch_size=4, shuffle=False, num_workers=2)
+    test_set = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform)
+    test_loader = torch.utils.data.DataLoader(test_set, batch_size=4, shuffle=False, num_workers=2)
 
     classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
-    dataIter = iter(trainLoader)
-    images, labels = dataIter.next()
+    data_iter = iter(train_loader)
+    images, labels = data_iter.next()
 
-    imshow(torchvision.utils.make_grid(images))
+    show(torchvision.utils.make_grid(images))
     print(' '.join('%5s' % classes[labels[j]] for j in range(4)))
 
     net = Net()
@@ -41,7 +41,7 @@ def run():
     for epoch in range(2):
 
         running_loss = 0.0
-        for i, data in enumerate(trainLoader, 0):
+        for i, data in enumerate(train_loader, 0):
             inputs, labels = data
 
             optimizer.zero_grad()
@@ -59,10 +59,10 @@ def run():
 
     print('Finished Training')
 
-    dataIter = iter(testloader)
-    images, labels = dataIter.next()
+    data_iter = iter(test_loader)
+    images, labels = data_iter.next()
 
-    imshow(torchvision.utils.make_grid(images))
+    show(torchvision.utils.make_grid(images))
 
     print('GroundTruth: ', ' '.join('%5s' % classes[labels[j]] for j in range(4)))
 
@@ -75,7 +75,7 @@ def run():
     correct = 0
     total = 0
     with torch.no_grad():
-        for data in testloader:
+        for data in test_loader:
             images, labels = data
             outputs = net(images)
             _, predicted = torch.max(outputs.data, 1)
@@ -87,7 +87,7 @@ def run():
     class_correct = list(0. for i in range(10))
     class_total = list(0. for i in range(10))
     with torch.no_grad():
-        for data in testloader:
+        for data in test_loader:
             images, labels = data
             outputs = net(images)
             _, predicted = torch.max(outputs, 1)
@@ -102,4 +102,4 @@ def run():
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(device)
-    del dataIter
+    del data_iter
